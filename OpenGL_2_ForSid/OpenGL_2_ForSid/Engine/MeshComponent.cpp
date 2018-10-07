@@ -36,9 +36,10 @@ void CMeshComponent::RenderMesh(CCamera* _camera)
 	glFrontFace(GL_CW);
 
 	/** Get the translate scale rotation from the game object transform */
-	glm::vec3 objPos = this->m_owner->m_transform.position;
-	glm::vec3 objRotate = this->m_owner->m_transform.rotation;
-	glm::vec3 objScale = this->m_owner->m_transform.scale;
+	auto owner = this->GetOwner().lock();
+	glm::vec3 objPos = this->GetOwner().lock()->m_transform.position;
+	glm::vec3 objRotate =this->GetOwner().lock()->m_transform.rotation;
+	glm::vec3 objScale = this->GetOwner().lock()->m_transform.scale;
 
 	/** Calculate the MVP matrix from the game object transform */
 	glm::mat4 translate = glm::translate(glm::mat4(), objPos);
@@ -62,7 +63,7 @@ void CMeshComponent::RenderMesh(CCamera* _camera)
 	glUniformMatrix3fv(normalMatLoc, 1, GL_FALSE, glm::value_ptr(normalMat));
 
 	GLuint camPosLoc = glGetUniformLocation(m_program, "camPos");
-	glUniform3fv(camPosLoc, 1, glm::value_ptr(_camera->GetOwner()->m_transform.position));
+	glUniform3fv(camPosLoc, 1, glm::value_ptr(_camera->m_cameraPosition));
 
 	/************************************************************************/
 

@@ -6,7 +6,7 @@
 // Forward Declare
 class CGameObject;
 
-class CComponent
+class CComponent : public std::enable_shared_from_this<CComponent>
 {
 public:
 	CComponent();
@@ -14,7 +14,7 @@ public:
 
 protected:
 
-	CGameObject* m_owner;
+	std::weak_ptr<CGameObject> m_owner;
 	bool m_isActive;
 
 // Membre Funciton
@@ -31,8 +31,8 @@ public:
 	/**
 	* Getter and setter of the "owner" property of the component
 	*/
-	void SetOwner(CGameObject* _gameObject);
-	CGameObject* GetOwner() const;
+	void SetOwner(std::shared_ptr<CGameObject> _gameObject);
+	std::weak_ptr<CGameObject> GetOwner() const;
 	/**
 	* Getter and setter of the "active" property of the component
 	*/

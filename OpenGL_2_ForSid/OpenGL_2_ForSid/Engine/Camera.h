@@ -1,7 +1,7 @@
 #pragma once
 
-// Inherited Include
-#include "Component.h"
+// Global Include
+#include "Utility.h"
 
 enum ECAMERATYPE
 {
@@ -9,15 +9,15 @@ enum ECAMERATYPE
 	PERSPECTIVE,
 };
 
-class CCamera : public CComponent
+class CCamera
 {
 public:
+
 	CCamera();
 	~CCamera();
 
-
-	virtual void Update(float _tick) override;
-	virtual void Initialize() override;
+	void Update();
+	void BeginPlay();
 
 	glm::mat4 GetView() const;
 	void CalcViewMatrix();
@@ -29,12 +29,16 @@ public:
 
 	glm::vec3 GetCameraNormal() const;
 	void SetCameraNormal(glm::vec3 _Normal);
-
-
-
 	
 	/** Configuration for the camera */
 public: 
+
+	glm::vec3 m_cameraPosition;
+	glm::vec3 m_cameraFacing;
+	glm::vec3 m_cameraNormal;
+
+	float m_viewPortWidth;
+	float m_viewPortHeight;
 
 	bool m_bPerspective;
 	float m_fov;
@@ -43,12 +47,8 @@ public:
 
 	bool m_bIsControlling;
 
-
 	/** Member variables */
 private: 
-
-	glm::vec3 m_cameraFacing;
-	glm::vec3 m_cameraNormal;
 
 	glm::mat4 m_viewMatrix;
 	glm::mat4 m_projectionMatrix;

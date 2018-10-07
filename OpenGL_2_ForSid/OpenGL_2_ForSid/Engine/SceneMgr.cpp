@@ -37,7 +37,7 @@ void CSceneMgr::InitializeScenes()
 	{
 		auto iter = m_scenes.begin();
 		m_runningScene = iter->second;
-		m_runningScene->InitailizeScene();
+		m_runningScene->ConfigurateScene();
 		m_runningScene->BeginPlay();
 	}
 }
@@ -57,7 +57,7 @@ void CSceneMgr::UpdateCurrentScene()
 
 void CSceneMgr::CreateNewScene(std::string _name, CScene* _scene)
 {
-	_scene->sceneName = _name;
+	_scene->m_sceneName = _name;
 	m_scenes.insert(std::pair<std::string, CScene*>(_name, _scene));
 }
 
@@ -72,7 +72,7 @@ void CSceneMgr::LoadScene(std::string _name)
 		if (iter->first == _name)
 		{
 			m_runningScene = iter->second;
-			m_runningScene->InitailizeScene();
+			m_runningScene->ConfigurateScene();
 		}
 	}
 }

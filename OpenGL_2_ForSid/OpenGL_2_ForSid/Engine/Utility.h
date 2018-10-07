@@ -42,9 +42,9 @@ std::string ToString(const T& _value)
 namespace util
 {
 	// Define the screen size
-	static int SCR_WIDTH = 1366;
-	static int SCR_HEIGHT = 768;
-	static int PIXELUNIT = 1;
+	static float SCR_WIDTH = 1366;
+	static float SCR_HEIGHT = 768;
+	static float PIXELUNIT = 1;
 }
 
 // Define Struct -------------------------------------------------------------------------------

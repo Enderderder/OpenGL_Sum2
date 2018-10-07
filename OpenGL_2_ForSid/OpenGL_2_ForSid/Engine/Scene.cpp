@@ -5,6 +5,7 @@
 #include "GameObject.h"
 #include "SpriteRenderComponent.h"
 #include "MeshComponent.h"
+#include "Camera.h"
 
 #include "Debug.h"
 //#include "Player.h"
@@ -22,8 +23,8 @@
 CScene::CScene()
 {
 
-	m_MainCamera = nullptr;
-	m_cCubeMap = nullptr;
+	m_mainCamera = nullptr;
+	m_cubeMap = nullptr;
 }
 
 // CScene::CScene(ESCENES _eSceneNum)
@@ -34,26 +35,23 @@ CScene::~CScene()
 	std::cout << "Cleaning Scene... \n";
 	// Clean up the memory allocated variables inside the class
 	// ========================================================
-	delete m_MainCamera;
-	m_cCubeMap = nullptr;
+	delete m_mainCamera;
+	m_cubeMap = nullptr;
 
-	for (auto obj : m_vGameObj)
-	{
-		delete obj;
-	}
+	// Clear the vector to destroy all the shared ptr object
 	m_vGameObj.clear();
 
 	// ========================================================
 	std::cout << "Cleaning Done... \n";
 }
 
-void CScene::InitailizeScene() { m_vGameObj.resize(0); }
+void CScene::ConfigurateScene() { m_vGameObj.resize(0); }
 
 void CScene::BeginPlay()
 {
 	for (auto obj : m_vGameObj)
 	{
-		obj->InitializeObject();
+		obj->BeginPlay();
 	}
 }
 
@@ -71,20 +69,20 @@ void CScene::RenderScene()
 
 	if (!m_vGameObj.empty())
 	{
-		for (CGameObject* gameObject : m_vGameObj)
+		for (std::shared_ptr<CGameObject> gameObject : m_vGameObj)
 		{
-			CSpriteRenderComponent* spriteRenderer
+			std::shared_ptr<CSpriteRenderComponent> spriteRenderer
 				= gameObject->GetComponent<CSpriteRenderComponent>();
 			if (spriteRenderer)
 			{
-				spriteRenderer->Render(m_MainCamera);
+				spriteRenderer->Render(m_mainCamera);
 				continue;
 			}
 
-			CMeshComponent* meshRenderer = gameObject->GetComponent<CMeshComponent>();
+			std::shared_ptr<CMeshComponent> meshRenderer = gameObject->GetComponent<CMeshComponent>();
 			if (meshRenderer)
 			{
-				meshRenderer->RenderMesh(m_MainCamera);
+				meshRenderer->RenderMesh(m_mainCamera);
 				continue;
 			}
 		}
@@ -96,10 +94,6 @@ void CScene::RenderScene()
 
 void CScene::ResetScene()
 {
-	for (auto obj : m_vGameObj)
-	{
-		delete obj;
-	}
 	m_vGameObj.clear();
 }
 
@@ -161,18 +155,18 @@ void CScene::UpdateScene()
 // 	}
 // }
 
-void CScene::Instantiate(CGameObject * _gameobj)
+void CScene::Instantiate(std::shared_ptr<CGameObject> _gameobj)
 {
 	m_vGameObj.push_back(_gameobj);
 }
 
-void CScene::Instantiate(CGameObject * _gameobj, glm::vec3 _pos)
+void CScene::Instantiate(std::shared_ptr<CGameObject> _gameobj, glm::vec3 _pos)
 {
 	_gameobj->m_transform.position = _pos;
 	m_vGameObj.push_back(_gameobj);
 }
 
-void CScene::Instantiate(CGameObject * _gameobj, 
+void CScene::Instantiate(std::shared_ptr<CGameObject> _gameobj,
 	glm::vec3 _pos, 
 	glm::vec3 _rotation, 
 	glm::vec3 _scale = glm::vec3(1.0f, 1.0f, 1.0f))
@@ -183,20 +177,80 @@ void CScene::Instantiate(CGameObject * _gameobj,
 	m_vGameObj.push_back(_gameobj);
 }
 
-void CScene::DestroyObject(CGameObject* _gameobj)
+void CScene::DestroyObject(std::shared_ptr<CGameObject> _gameobj)
 {
 	for (auto iter = m_vGameObj.begin(); iter != m_vGameObj.end(); ++iter)
 	{
 		if ((*iter) == _gameobj)
 		{
-			delete (*iter);
 			m_vGameObj.erase(iter);
 			break;
 		}
 	}
 }
 
-std::vector<CGameObject*> CScene::GetObjectVec() const
+std::shared_ptr<CGameObject> CScene::FindGameObject(std::string _name) const
+{
+	for (auto iter = m_vGameObj.begin(); iter != m_vGameObj.end(); ++iter)
+	{
+		if ((*iter)->m_name == _name)
+		{
+			return *iter;
+		}
+	}
+
+	return nullptr;
+}
+
+std::vector<std::weak_ptr<CGameObject>> CScene::FindGameObjectAll(std::string _name) const
+{
+	std::vector<std::weak_ptr<CGameObject>> resultVector;
+
+	for (auto iter = m_vGameObj.begin(); iter != m_vGameObj.end(); ++iter)
+	{
+		if ((*iter)->m_name == _name)
+		{
+			resultVector.push_back(*iter);
+		}
+	}
+
+	return resultVector;
+}
+
+std::shared_ptr<CGameObject> CScene::FindObjectWithTag(std::string _tag) const
+{
+	for (auto iter = m_vGameObj.begin(); iter != m_vGameObj.end(); ++iter)
+	{
+		if ((*iter)->m_tag == _tag)
+		{
+			return *iter;
+		}
+	}
+
+	return nullptr;
+}
+
+std::vector<std::weak_ptr<CGameObject>> CScene::FindObjectWithTagAll(std::string _tag) const
+{
+	std::vector<std::weak_ptr<CGameObject>> resultVector;
+
+	for (auto iter = m_vGameObj.begin(); iter != m_vGameObj.end(); ++iter)
+	{
+		if ((*iter)->m_tag == _tag)
+		{
+			resultVector.push_back(*iter);
+		}
+	}
+
+	return resultVector;
+}
+
+CCamera* CScene::GetMainCamera() const
+{
+	return m_mainCamera;
+}
+
+std::vector<std::shared_ptr<CGameObject>> CScene::GetObjectVec() const
 {
 	return m_vGameObj;
 }

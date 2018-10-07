@@ -28,6 +28,7 @@
     <ClInclude Include="Engine\CubeMap.h" />
     <ClInclude Include="Engine\CubeMesh.h" />
     <ClInclude Include="Engine\Debug.h" />
+    <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Engine\GameObject.h" />
     <ClInclude Include="Engine\Input.h" />
     <ClInclude Include="Engine\Mesh.h" />
@@ -85,7 +86,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{62A167C8-2FCA-43F1-BCBE-729ADA200F50}</ProjectGuid>
+    <ProjectGuid>{AF20A57D-5CE4-425F-9A15-0A89BAE21C2B}</ProjectGuid>
     <RootNamespace>Velocitas</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>

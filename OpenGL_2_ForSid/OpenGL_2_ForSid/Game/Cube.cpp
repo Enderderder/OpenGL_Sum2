@@ -13,7 +13,7 @@ CCube::CCube()
 
 CCube::~CCube() {}
 
-void CCube::InitializeObject()
+void CCube::BeginPlay()
 {
 	m_meshRenderer->SetMesh(CAssetMgr::GetInstance()->GetMesh("DefaultCubeMesh"));
 	m_meshRenderer->SetTexture(CAssetMgr::GetInstance()->GetTexture("Box"));

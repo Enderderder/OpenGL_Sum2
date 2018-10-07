@@ -12,12 +12,12 @@ public:
 	CCube();
 	~CCube();
 
-	virtual void InitializeObject() override;
+	virtual void BeginPlay() override;
 	virtual void Update() override;
 
 
 private:
 
-	CMeshComponent* m_meshRenderer;
+	std::shared_ptr<CMeshComponent> m_meshRenderer;
 };
 

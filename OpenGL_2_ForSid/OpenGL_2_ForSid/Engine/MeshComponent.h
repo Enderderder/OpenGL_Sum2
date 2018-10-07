@@ -11,7 +11,7 @@ class CMeshComponent : public CComponent
 {
 public:
 	CMeshComponent();
-	~CMeshComponent();
+	virtual ~CMeshComponent();
 
 	void SetMesh(CMesh* _mesh);
 	void SetTexture(GLuint _texture);
@@ -21,7 +21,7 @@ public:
 
 private:
 
-	CMesh * m_mesh;
+	CMesh* m_mesh;
 	GLuint m_texture;
 	GLuint m_program;
 

@@ -17,9 +17,9 @@ CSpaceShip::CSpaceShip()
 CSpaceShip::~CSpaceShip()
 {}
 
-void CSpaceShip::InitializeObject()
+void CSpaceShip::BeginPlay()
 {
-	__super::InitializeObject();
+	__super::BeginPlay();
 	
 	/** Set the sprite for the object */
 	m_spriteRenderer->SetSprite(CAssetMgr::GetInstance()->GetSprite("Block"));

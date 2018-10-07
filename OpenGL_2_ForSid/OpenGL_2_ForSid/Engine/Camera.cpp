@@ -5,30 +5,32 @@
 // Engine Include
 #include "Input.h"
 
+// Static variable
 static CInput* p_Input = CInput::GetInstance();
 
-CCamera::CCamera() :
-	m_cameraFacing(glm::vec3(0.0f, 0.0f, -1.0f)),
-	m_cameraNormal(glm::vec3(0.0f, 1.0f, 0.0f)),
-	m_bPerspective(true),
-	m_fov(45.0f),
-	m_nearPlane(0.1f),
-	m_farPlane(1000.0f),
-	m_bIsControlling(false)
+CCamera::CCamera()
 {
-
+	m_cameraFacing = glm::vec3(0.0f, 0.0f, -1.0f);
+	m_cameraNormal = glm::vec3(0.0f, 1.0f, 0.0f);
+	m_bPerspective = true;
+	m_fov = 45.0f;
+	m_nearPlane = 0.1f;
+	m_farPlane = 3000.0f;
+	m_bIsControlling = false;
+	m_viewPortWidth = util::SCR_WIDTH;
+	m_viewPortHeight = util::SCR_HEIGHT;
 }
 
 CCamera::~CCamera()
 {}
 
-void CCamera::Initialize()
+void CCamera::BeginPlay()
 {
 	CalcViewMatrix();
 	CalcProjectionMatrix();
 }
 
-void CCamera::Update(float _tick)
+void CCamera::Update()
 {
 	if (m_bIsControlling)
 	{
@@ -75,8 +77,7 @@ void CCamera::Update(float _tick)
 	}
 
 
-
-
+	// Re-calculate the projection and view matrix
 	CalcViewMatrix();
 	CalcProjectionMatrix();
 }
@@ -89,8 +90,8 @@ glm::mat4 CCamera::GetView() const
 void CCamera::CalcViewMatrix()
 {
 	m_viewMatrix = glm::lookAt(
-		GetOwner()->m_transform.position,
-		this->m_transform.position + m_cameraFacing,
+		m_cameraPosition,
+		m_cameraPosition + m_cameraFacing,
 		m_cameraNormal);
 }
 
@@ -104,37 +105,29 @@ void CCamera::CalcProjectionMatrix()
 	if (m_bPerspective)
 	{
 		m_projectionMatrix = glm::perspective(m_fov,
-			(float)util::SCR_WIDTH / (float)util::SCR_HEIGHT, m_nearPlane, m_farPlane);
+			m_viewPortWidth / m_viewPortHeight, m_nearPlane, m_farPlane);
 	} 
 	else
 	{
-		m_projectionMatrix = glm::ortho((float)-(util::SCR_WIDTH / 2), (float)(util::SCR_WIDTH / 2),
-			(float)-(util::SCR_HEIGHT / 2), (float)(util::SCR_HEIGHT / 2), m_nearPlane, m_farPlane);
+		m_projectionMatrix = glm::ortho(-(m_viewPortWidth / 2), (m_viewPortWidth / 2),
+			-(m_viewPortHeight / 2), (m_viewPortHeight / 2), m_nearPlane, m_farPlane);
 	}
 }
 
 glm::vec3 CCamera::GetCameraFacing() const
 {
-	return(m_cameraFacing);
+	return m_cameraFacing;
 }
-void CCamera::SetCameraFacing(glm::vec3 _Facing)
+void CCamera::SetCameraFacing(glm::vec3 _facing)
 {
-	m_cameraFacing = _Facing;
-
-	CalcViewMatrix();
-	CalcProjectionMatrix();
+	m_cameraFacing = _facing;
 }
 
 glm::vec3 CCamera::GetCameraNormal() const
 {
-	return(m_cameraNormal);
+	return m_cameraNormal;
 }
-void CCamera::SetCameraNormal(glm::vec3 _Normal)
+void CCamera::SetCameraNormal(glm::vec3 _normal)
 {
-	m_cameraNormal = _Normal;
-
-	CalcViewMatrix();
-	CalcProjectionMatrix();
+	m_cameraNormal = _normal;
 }
-
-

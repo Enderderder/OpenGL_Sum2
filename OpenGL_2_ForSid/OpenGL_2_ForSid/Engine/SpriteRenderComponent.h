@@ -22,8 +22,6 @@ public:
 
 	void SetSprite(CSprite* _sprite);
 	void SetProgram(GLuint _programID);
-
-
 	
 private:
 
@@ -31,4 +29,3 @@ private:
 	GLuint m_programID;
 
 };
-

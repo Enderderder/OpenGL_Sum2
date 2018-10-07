@@ -4,7 +4,6 @@
 // Local Include
 #include "Component.h"
 
-
 /* Legacy Render Function*/
 // void CGameObject::RenderObject(CCamera* _camera)
 // {
@@ -57,15 +56,15 @@
 
 CGameObject::CGameObject()
 {
-	m_ShouldDestroyed = false;
+	m_shouldDestroyed = false;
 	m_isActive = true;
-	m_transform.gameObject = this;
+	m_transform.gameObject = shared_from_this();
 }
 
 CGameObject::~CGameObject()
 {}
 
-void CGameObject::InitializeObject() 
+void CGameObject::BeginPlay() 
 {
 	for (auto iter : m_components)
 	{
@@ -74,13 +73,11 @@ void CGameObject::InitializeObject()
 }
 
 void CGameObject::Update() 
-{
-
-}
+{}
 
 void CGameObject::DestroyObject()
 {
-	this->m_ShouldDestroyed = true;
+	this->m_shouldDestroyed = true;
 }
 
 bool CGameObject::IsActive() const
@@ -95,5 +92,5 @@ void CGameObject::SetActive(bool _b)
 
 bool CGameObject::ShouldDestroyed() const
 {
-	return m_ShouldDestroyed;
+	return m_shouldDestroyed;
 }

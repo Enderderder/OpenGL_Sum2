@@ -12,13 +12,13 @@ struct Trasform;
 // Declare a Transform struct
 struct Transform
 {
-	CGameObject* gameObject = nullptr;
+	std::weak_ptr<CGameObject> gameObject;
 	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
 };
 
-class CGameObject
+class CGameObject : public std::enable_shared_from_this<CGameObject>
 {
 public:
 	CGameObject();
@@ -31,26 +31,31 @@ public:
 
 protected:
 	
-	bool m_ShouldDestroyed;
+	bool m_shouldDestroyed;
 	bool m_isActive;
 	
-	std::vector<CComponent*> m_components;
+	std::vector<std::shared_ptr<CComponent>> m_components;
 
 public:
 	/**
 	* Initialize the object
 	* Call right after the scene initialize
 	*/
-	virtual void InitializeObject();
+	virtual void BeginPlay();
 	/*
 	 * Call every frame
 	 */
 	virtual void Update();
 	/**
+	* Creates a component and push to the vector
+	*/
+	template<typename T>
+	std::shared_ptr<T> CreateComponent();
+	/**
 	* Try get the component of the gameobject
 	*/
 	template<typename T>
-	T* GetComponent() const;
+	std::shared_ptr<T> GetComponent() const;
 	/*
 	 *Check if the object should be destroyed on thie frame
 	 */
@@ -69,41 +74,31 @@ public:
 	 */
 	void SetActive(bool);
 
-protected:
-	
-	/**
-	 * Creates a component and push to the vector
-	 */
-	template<typename T>
-	T* CreateComponent();
-
 };
 
 template<typename T>
-T* CGameObject::CreateComponent()
+std::shared_ptr<T> CGameObject::CreateComponent()
 {
-	CComponent* newComponent = new T();
-	newComponent->SetOwner(this);
+	std::shared_ptr<T> newComponent
+		= std::make_shared<T>();
+	newComponent->SetOwner(shared_from_this());
 
-	T* resultComponent = dynamic_cast<T*>(newComponent);
-
-	if (resultComponent != nullptr)
+	// Check if the generic type is actually a component based class
+	if (std::dynamic_pointer_cast<T>(newComponent))
 	{
-		std::cout << "component pushed" << std::endl;
-		m_components.push_back(resultComponent);
+		// Push into the componet container for operation
+		m_components.push_back(newComponent);
+		return newComponent;
 	}
-
-
-	return resultComponent;
+	else { return nullptr; } // Returns a null pointer to show its not a valid type
 }
 
 template<typename T>
-T* CGameObject::GetComponent() const
+std::shared_ptr<T> CGameObject::GetComponent() const
 {
-
-	for (CComponent* iter : m_components)
+	for (std::shared_ptr<CComponent> iter : m_components)
 	{
-		T* component = dynamic_cast<T*>(iter);
+		std::shared_ptr<T> component = std::dynamic_pointer_cast<T>(iter);
 		if (component != nullptr)
 		{
 			return component;

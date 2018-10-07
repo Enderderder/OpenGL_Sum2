@@ -13,12 +13,12 @@ public:
 	CSpaceShip();
 	~CSpaceShip();
 
-	virtual void InitializeObject() override;
+	virtual void BeginPlay() override;
 	virtual void Update() override;
 
 private:
 
-	CSpriteRenderComponent* m_spriteRenderer;
+	std::shared_ptr<CSpriteRenderComponent> m_spriteRenderer;
 
 };
 

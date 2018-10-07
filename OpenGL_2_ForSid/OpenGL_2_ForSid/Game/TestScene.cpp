@@ -11,9 +11,9 @@
 static CAssetMgr* p_Assets = CAssetMgr::GetInstance();
 
 
-void CTestScene::InitailizeScene()
+void CTestScene::ConfigurateScene()
 {
-	__super::InitailizeScene();
+	__super::ConfigurateScene();
 
 	/** Scene Configuration */
 	m_bScissorTest = true;
@@ -25,21 +25,14 @@ void CTestScene::InitailizeScene()
 
 	/** Create Camera Object */
 
-	CCamera* CameraObject = new CCamera();
-	CameraObject->m_name = "Main Camera";
-	CameraObject->m_transform.position = glm::vec3(0.0f, 0.0f, 30.0f);
-	CameraObject->m_bIsControlling = true;
-
-	this->m_vGameObj.push_back(CameraObject);
-
-	this->m_MainCamera = CameraObject;
+	CCamera* mainCamera = new CCamera();
+	this->m_mainCamera = mainCamera;
 	
 	/** Create game objects in the scenes */
 
-	CCube* newCube = new CCube();
-	CMeshComponent* meshRenderer = newCube->GetComponent<CMeshComponent>();
+	std::shared_ptr<CCube> newCube = std::make_shared<CCube>();
+	std::shared_ptr<CMeshComponent> meshRenderer = newCube->GetComponent<CMeshComponent>();
 	meshRenderer->SetProgram(p_Assets->GetProgramID("BlinnPhongProgram"));
 	meshRenderer->SetTexture(p_Assets->GetTexture("Box"));
 	this->m_vGameObj.push_back(newCube);
-
 }

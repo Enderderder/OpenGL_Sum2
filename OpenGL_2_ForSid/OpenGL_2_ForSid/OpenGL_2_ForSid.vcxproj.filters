@@ -179,6 +179,9 @@
     <ClInclude Include="Engine\CubeMap.h">
       <Filter>Framework\CubeMap</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Engine.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Camera.cpp">
