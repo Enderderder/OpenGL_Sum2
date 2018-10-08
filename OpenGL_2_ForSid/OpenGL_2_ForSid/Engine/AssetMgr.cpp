@@ -6,6 +6,7 @@
 #include "ShaderLoader.h"
 #include "Sprite.h"
 #include "CubeMesh.h"
+#include "CubeMap.h"
 #include "Debug.h"
 
 #pragma region Singleton
@@ -40,12 +41,19 @@ void CAssetMgr::InitializeAssets()
 	CreateProgram("DefaultSpriteProgram", "Engine/Shaders/Sprite.vs", "Engine/Shaders/Sprite.fs");
 	CreateProgram("UnlitProgram", "Engine/Shaders/Unlit.vs", "Engine/Shaders/Unlit.fs");
 	CreateProgram("BlinnPhongProgram", "Engine/Shaders/BlinnPhong.vs", "Engine/Shaders/BlinnPhong.fs");
+	CreateProgram("CubeMapProgram", "Engine/Shaders/CubeMap.vs", "Engine/Shaders/CubeMap.fs");
 
 	/** Initialize Meshes */
 	CreateMesh("DefaultCubeMesh", new CCubeMesh());
 
 	/** Initialize Textures */
 	CreateTexture("Box", "Resources/Textures/Box.png");
+
+	/** Initialize cube maps */
+	CreateCubeMap("DefaultCubeMap", std::vector<std::string>{
+		"DefaultCubeMap/right.jpg", "DefaultCubeMap/left.jpg", "DefaultCubeMap/top.jpg",
+			"DefaultCubeMap/bottom.jpg", "DefaultCubeMap/back.jpg", "DefaultCubeMap/front.jpg"});
+
 
 	/** Initialize Sprites */
 	CreateSprite("Block", "Resources/Sprites/Block.png");
@@ -107,6 +115,20 @@ GLuint CAssetMgr::GetTexture(std::string _name) const
 	return NULL;
 }
 
+CCubeMap* CAssetMgr::GetCubeMap(std::string _name) const
+{
+	for (auto iter = m_cubemapMap.begin(); iter != m_cubemapMap.end(); ++iter)
+	{
+		if (iter->first == _name)
+		{
+			return iter->second;
+		}
+	}
+
+	CDebug::Log("Unable to grab cube map from name.");
+	return NULL;
+}
+
 void CAssetMgr::CreateProgram(std::string _name, const char* _vertexPath, const char* _fragmentPath)
 {
 	GLuint newProgram = ShaderLoader::CreateProgram(_vertexPath, _fragmentPath);
@@ -165,4 +187,12 @@ void CAssetMgr::CreateTexture(std::string _name, const char* _pathName)
 
 	/** Load into the map */
 	m_textureMap.insert(std::pair<std::string, GLuint>(_name, texture));
+}
+
+void CAssetMgr::CreateCubeMap(std::string _name, std::vector<std::string> _pathNames)
+{
+	// Create the new cube map using the path names
+	CCubeMap* newCubeMap = new CCubeMap(_pathNames);
+
+	m_cubemapMap.insert(std::pair<std::string, CCubeMap*>(_name, newCubeMap));
 }

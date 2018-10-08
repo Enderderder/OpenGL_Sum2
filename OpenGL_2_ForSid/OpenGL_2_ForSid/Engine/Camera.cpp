@@ -10,13 +10,14 @@ static CInput* p_Input = CInput::GetInstance();
 
 CCamera::CCamera()
 {
+	m_cameraPosition = glm::vec3(0.0f, 100.0f, 500.0f);
 	m_cameraFacing = glm::vec3(0.0f, 0.0f, -1.0f);
 	m_cameraNormal = glm::vec3(0.0f, 1.0f, 0.0f);
 	m_bPerspective = true;
 	m_fov = 45.0f;
 	m_nearPlane = 0.1f;
 	m_farPlane = 3000.0f;
-	m_bIsControlling = false;
+	m_bIsControlling = true;
 	m_viewPortWidth = util::SCR_WIDTH;
 	m_viewPortHeight = util::SCR_HEIGHT;
 }

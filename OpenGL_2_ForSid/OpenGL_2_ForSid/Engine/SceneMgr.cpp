@@ -44,7 +44,7 @@ void CSceneMgr::InitializeScenes()
 
 void CSceneMgr::RenderCurrentScene()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	m_runningScene->RenderScene();
 }

@@ -2,6 +2,11 @@
 // This Include
 #include "Terrain.h"
 
+// Engine Include
+#include "AssetMgr.h"
+#include "GameObject.h"
+#include "Camera.h"
+
 CTerrain::CTerrain()
 {}
 
@@ -71,29 +76,30 @@ void CTerrain::CreateTerrain(HeightMapInfo& _info)
 	m_numFaces = (m_hmInfo.numRows - 1) * (m_hmInfo.numCols - 1) * 2;
 
 	LoadHeightMap();
-	SmoothHeightMap();
-
+	//SmoothHeightMap();
 
 	/************************************************************************/
 
 	// Initialize a vector of position vector with the size
-	std::vector<glm::vec3> vertices(m_numVertices, glm::vec3());
-
-	for (int row = 0; row < m_hmInfo.numRows; ++row)
+	std::vector<GLfloat> vertices(m_numVertices * 3);
+	int s = 0;
+	for (UINT row = 0; row < m_hmInfo.numRows; ++row)
 	{
 		float z = row * m_hmInfo.cellSpacing;
 
-		for (int col = 0; col < m_hmInfo.numCols; ++col)
+		for (UINT col = 0; col < m_hmInfo.numCols; ++col)
 		{
 			float x = col + m_hmInfo.cellSpacing;
 
-			float y = m_heightMap[(row * m_hmInfo.numCols) + col];
+			float y = 0.0f; // m_heightMap[(row * m_hmInfo.numCols) + col];
 
 			// load each data into the vertices
-			vertices[(row * m_hmInfo.numCols) + col] = glm::vec3(x, y, z);
+			vertices[(row * m_hmInfo.numCols) + col] = x;
+			//vertices[(row * m_hmInfo.numCols) + col]
 		}
 	}
 
+	// Generate the indice buffer
 	std::vector<GLuint> indices(m_numFaces * 3);
 
 	// Iterate over each quad and compute indices.
@@ -114,6 +120,10 @@ void CTerrain::CreateTerrain(HeightMapInfo& _info)
 		}
 	}
 
+	// Bind the program
+	m_program = CAssetMgr::GetInstance()->GetProgramID("UnlitProgram");
+	
+	// Bind the information of the shape in to VAO
 	GLuint VBO, EBO;
 
 	glGenVertexArrays(1, &m_vao);
@@ -121,21 +131,55 @@ void CTerrain::CreateTerrain(HeightMapInfo& _info)
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 
+	glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
 
+	// Unbind the VAO after generating
+	glBindVertexArray(0);
 
-
-
+	// Comput the indice size
+	m_indiceCount = indices.size() * sizeof(GLuint) / sizeof(GLuint);
 }
 
-void CTerrain::RenderTerrain()
+void CTerrain::RenderTerrain(CCamera* _camera)
 {
+	glUseProgram(m_program);
 
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CW);
+
+	/** Get the translate scale rotation from the game object transform */
+	glm::vec3 objPos = this->GetOwner()->m_transform.position;
+	glm::vec3 objRotate = this->GetOwner()->m_transform.rotation;
+	glm::vec3 objScale = this->GetOwner()->m_transform.scale;
+
+	/** Calculate the MVP matrix from the game object transform */
+	glm::mat4 translate = glm::translate(glm::mat4(), objPos);
+	glm::mat4 scale = glm::scale(glm::mat4(), objScale);
+	glm::mat4 rotation = glm::mat4();
+	rotation = glm::rotate(rotation, glm::radians(objRotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
+	rotation = glm::rotate(rotation, glm::radians(objRotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
+	rotation = glm::rotate(rotation, glm::radians(objRotate.z), glm::vec3(0.0f, 0.0f, 1.0f));
+	glm::mat4 model = translate * rotation * scale;
+	glm::mat4 mvp = _camera->GetProj() *  _camera->GetView() * model;
+	GLint mvpLoc = glGetUniformLocation(m_program, "MVP");
+	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
+
+	// Render the shape
+	glBindVertexArray(m_vao);
+	glDrawElements(GL_TRIANGLES, m_indiceCount, GL_UNSIGNED_INT, 0);
+
+	// Unbind
+	glBindVertexArray(0);
+	glUseProgram(0);
 }
 
 bool CTerrain::InBounds(UINT i, UINT j)
@@ -178,12 +222,3 @@ float CTerrain::Average(UINT i, UINT j)
 
 	return avg / num;
 }
-
-// std::vector<GLfloat> CTerrain::CalculateTerrainVAO()
-// {
-// 	std::vector<glm::vec3> vertices(m_numVertices * 6);
-// 
-// 	for 
-// 
-// 
-// }

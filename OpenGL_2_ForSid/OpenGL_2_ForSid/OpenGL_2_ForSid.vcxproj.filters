@@ -106,6 +106,9 @@
     <Filter Include="Resources\Shaders\HeightMap">
       <UniqueIdentifier>{b5a26ed9-3a1a-48d1-bcb6-0e81ce699963}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\TerrainClass">
+      <UniqueIdentifier>{9d916874-50f2-4970-b935-0ab15b4bd75e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Engine\Commenting Header.txt">
@@ -259,7 +262,9 @@
     <ClCompile Include="Engine\CubeMap.cpp">
       <Filter>Framework\CubeMap</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Terrain.cpp" />
+    <ClCompile Include="Engine\Terrain.cpp">
+      <Filter>Framework\Component\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Engine\Shaders\CubeMap.fs">

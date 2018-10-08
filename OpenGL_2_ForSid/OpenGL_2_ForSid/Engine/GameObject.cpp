@@ -58,7 +58,7 @@ CGameObject::CGameObject()
 {
 	m_shouldDestroyed = false;
 	m_isActive = true;
-	m_transform.gameObject = shared_from_this();
+	m_transform.gameObject = this;
 }
 
 CGameObject::~CGameObject()

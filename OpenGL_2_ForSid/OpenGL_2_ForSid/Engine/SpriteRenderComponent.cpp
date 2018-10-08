@@ -16,13 +16,13 @@ void CSpriteRenderComponent::BeginPlay()
 
 void CSpriteRenderComponent::Render(CCamera* _camera)
 {
-	if (this->GetOwner().lock()->IsActive() == false
+	if (this->GetOwner()->IsActive() == false
 		|| m_sprite == nullptr)
 	{
 		return;
 	}
 
-	m_sprite->RenderSprite(this->GetOwner().lock()->m_transform,
+	m_sprite->RenderSprite(this->GetOwner()->m_transform,
 		_camera, m_programID);
 }
 

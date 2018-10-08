@@ -10,15 +10,18 @@ class CCamera;
 class CCubeMap
 {
 public:
-	CCubeMap();
+	CCubeMap() = default;
+	CCubeMap(std::vector<std::string> _textureFilePaths);
 	~CCubeMap();
 
 	void RenderCubeMap(CCamera* _camera);
 
+	GLuint GetTextureID() const;
+
 private:
 	
-	CMesh* m_cubemapMesh;
-	GLuint m_texture;
+	GLuint m_vao;
+	GLuint m_programID;
+	GLuint m_textureID;
 
 };
-

@@ -12,7 +12,7 @@ struct Trasform;
 // Declare a Transform struct
 struct Transform
 {
-	std::weak_ptr<CGameObject> gameObject;
+	CGameObject* gameObject;
 	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -81,7 +81,7 @@ std::shared_ptr<T> CGameObject::CreateComponent()
 {
 	std::shared_ptr<T> newComponent
 		= std::make_shared<T>();
-	newComponent->SetOwner(shared_from_this());
+	newComponent->SetOwner(this);
 
 	// Check if the generic type is actually a component based class
 	if (std::dynamic_pointer_cast<T>(newComponent))

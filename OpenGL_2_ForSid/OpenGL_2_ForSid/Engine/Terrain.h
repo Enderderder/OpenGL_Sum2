@@ -3,14 +3,17 @@
 // Inherited Includes
 #include "Component.h"
 
+// Forward Declare
+class CCamera;
+
 struct HeightMapInfo
 {
 	std::wstring heightmapFilename;
-	float heightScale;
-	float heightOffset;
+	float heightScale = 1.0f;
+	float heightOffset = 0.0f;
 	UINT numRows;
 	UINT numCols;
-	float cellSpacing;
+	float cellSpacing = 1.0f;
 };
 
 struct TerrainVertex
@@ -31,22 +34,37 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Update(float _tick);
 
+	/**
+	 * Load the height map in using a RAW file
+	 */
 	void LoadHeightMap();
 
+	/**
+	* Smooth the height map using average function
+	*/
 	void SmoothHeightMap();
 
+	/**
+	 * Create the terrain shape using the loaded height map
+	 */
 	void CreateTerrain(HeightMapInfo& _info);
 
-	void RenderTerrain();
+	/**
+	 * Render function of the terrain
+	 */
+	void RenderTerrain(CCamera* _camera);
 
 private:
 
+	/**
+	 * Check if the point is inside the height map
+	 */
 	bool InBounds(UINT i, UINT j);
 
+	/**
+	 * Compute the average element value of the point
+	 */
 	float Average(UINT i, UINT j);
-
-	//std::vector<GLfloat> CalculateTerrainVAO();
-
 
 private:
 
@@ -58,4 +76,8 @@ private:
 	std::vector<float> m_heightMap;
 
 	GLuint m_vao;
+	GLuint m_indiceCount;
+
+	GLuint m_program;
+
 };

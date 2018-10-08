@@ -5,12 +5,12 @@ CComponent::CComponent() {}
 
 CComponent::~CComponent() {}
 
-void CComponent::SetOwner(std::shared_ptr<CGameObject> _gameObject)
+void CComponent::SetOwner(CGameObject* _gameObject)
 {
 	this->m_owner = _gameObject;
 }
 
-std::weak_ptr<CGameObject> CComponent::GetOwner() const
+CGameObject* CComponent::GetOwner() const
 {
 	return m_owner;
 }

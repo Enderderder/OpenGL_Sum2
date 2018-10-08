@@ -27,11 +27,11 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GL_MULTISAMPLE);
 	glutInitWindowPosition(400, 200);
 
-	glutInitWindowSize(util::SCR_WIDTH, util::SCR_HEIGHT);
+	glutInitWindowSize((int)util::SCR_WIDTH, (int)util::SCR_HEIGHT);
 	glutCreateWindow("Velocitas");
 	glEnable(GL_MULTISAMPLE);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Set Clear Screen Color
 	glClearColor(0.0, 1.0, 0.0, 1.0); // Make the background color GREEN
@@ -86,8 +86,6 @@ void InititializeProgram()
 void Render()
 {
 	p_SceneMgr->RenderCurrentScene();
-
-	//g_FPSLabel->RenderTextLabel();
 
 	glutSwapBuffers();
 }

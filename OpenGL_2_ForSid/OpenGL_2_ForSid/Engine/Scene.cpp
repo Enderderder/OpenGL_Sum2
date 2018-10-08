@@ -6,8 +6,9 @@
 #include "SpriteRenderComponent.h"
 #include "MeshComponent.h"
 #include "Camera.h"
-
+#include "CubeMap.h"
 #include "Debug.h"
+#include "Terrain.h"
 //#include "Player.h"
 //#include "PowerUps.h"
 //#include "AssetMgr.h"
@@ -17,18 +18,13 @@
 //#include "Input.h"
 //#include "Camera.h"
 //#include "CAIMgr.h"
-//#include "CubeMap.h"
 //#include "TextLabel.h"
 
 CScene::CScene()
 {
-
 	m_mainCamera = nullptr;
 	m_cubeMap = nullptr;
 }
-
-// CScene::CScene(ESCENES _eSceneNum)
-// {}
 
 CScene::~CScene()
 {
@@ -63,9 +59,10 @@ void CScene::RenderScene()
 		glScissor(0, 100, 1366, 668);
 	}
 
-	glPolygonMode(GL_FRONT, GL_LINE);
-
-	//m_cCubeMap->Render(m_MainCamera);
+	if (m_cubeMap)
+	{ 
+		m_cubeMap->RenderCubeMap(m_mainCamera);
+	}
 
 	if (!m_vGameObj.empty())
 	{
@@ -79,17 +76,27 @@ void CScene::RenderScene()
 				continue;
 			}
 
-			std::shared_ptr<CMeshComponent> meshRenderer = gameObject->GetComponent<CMeshComponent>();
+			std::shared_ptr<CMeshComponent> meshRenderer 
+				= gameObject->GetComponent<CMeshComponent>();
 			if (meshRenderer)
 			{
 				meshRenderer->RenderMesh(m_mainCamera);
+				continue;
+			}
+
+			std::shared_ptr<CTerrain> terrainRender 
+				= gameObject->GetComponent<CTerrain>();
+			if (terrainRender)
+			{
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				terrainRender->RenderTerrain(m_mainCamera);
+				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				continue;
 			}
 		}
 	}
 
 	glDisable(GL_SCISSOR_TEST);
-	glPolygonMode(GL_FRONT, GL_FILL);
 }
 
 void CScene::ResetScene()
@@ -99,7 +106,8 @@ void CScene::ResetScene()
 
 void CScene::UpdateScene()
 {
-	//m_MainCamera->UpdateCamera();
+	// Refresh the camera
+	m_mainCamera->Update();
 
 	// Delete the object that should be deleted fron last frame
 	for (auto obj : m_vGameObj)
@@ -114,8 +122,6 @@ void CScene::UpdateScene()
 		m_vGameObj[index]->Update();
 		currVecSize = m_vGameObj.size(); // Revalidate the number of item inside the vector
 	}
-
-	//CheckCollision();
 }
 
 /* Legacy code */

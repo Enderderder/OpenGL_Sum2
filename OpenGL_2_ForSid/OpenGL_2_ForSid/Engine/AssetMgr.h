@@ -6,6 +6,7 @@
 // Forward Declare
 class CSprite;
 class CMesh;
+class CCubeMap;
 class Text;
 
 class CAssetMgr
@@ -37,8 +38,7 @@ public:
 	GLuint GetProgramID(std::string _name) const;
 	CMesh* GetMesh(std::string _name) const;
 	GLuint GetTexture(std::string _name) const;
-
-
+	CCubeMap* GetCubeMap(std::string _name) const;
 
 private:
 
@@ -53,6 +53,7 @@ private:
 
 	void CreateTexture(std::string _name, const char* _pathName);
 
+	void CreateCubeMap(std::string _name, std::vector<std::string> _pathNames);
 
 private:
 	/** Map collection of sprites with a string name */
@@ -64,8 +65,11 @@ private:
 	/** Map collection of programs with a string name */
 	std::map<std::string, GLuint> m_programMap;
 
-	/** Map collection of textures with a strin name */
+	/** Map collection of textures with a string name */
 	std::map<std::string, GLuint> m_textureMap;
+
+	/** Map collection of cubemap with a string name */
+	std::map<std::string, CCubeMap*> m_cubemapMap;
 
 };
 
