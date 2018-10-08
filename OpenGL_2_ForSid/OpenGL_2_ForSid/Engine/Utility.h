@@ -14,6 +14,7 @@
 // Library Include -----------------------------------------------------------------------------
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <memory>
 #include <string>
 #include <vector>

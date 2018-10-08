@@ -70,7 +70,7 @@ void CCamera::Update()
 		if (resultVec != glm::vec3())
 		{
 			// Add the speed force to the direction
-			//this->m_transform.position += resultVec;
+			this->m_cameraPosition += resultVec;
 
 			//this->m_velocity = glm::normalize(resultVec) * m_movementSpd;
 		}
