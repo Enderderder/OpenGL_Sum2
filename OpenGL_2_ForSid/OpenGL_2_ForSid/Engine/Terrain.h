@@ -11,9 +11,9 @@ struct HeightMapInfo
 	std::wstring heightmapFilename;
 	float heightScale = 1.0f;
 	float heightOffset = 0.0f;
-	UINT numRows;
-	UINT numCols;
-	float cellSpacing = 1.0f;
+	int numRows;
+	int numCols;
+	float cellSpacing = 2.0f;
 };
 
 struct TerrainVertex
@@ -54,17 +54,26 @@ public:
 	 */
 	void RenderTerrain(CCamera* _camera);
 
+	/**
+	 * Get the height of the terrain at certain point
+	 */
+	float GetHeight(float _x, float _z) const;
+
+	float GetWidth() const;
+
+	float GetDepth() const;
+
 private:
 
 	/**
 	 * Check if the point is inside the height map
 	 */
-	bool InBounds(UINT i, UINT j);
+	bool InBounds(int i, int j);
 
 	/**
 	 * Compute the average element value of the point
 	 */
-	float Average(UINT i, UINT j);
+	float Average(int i, int j);
 
 private:
 

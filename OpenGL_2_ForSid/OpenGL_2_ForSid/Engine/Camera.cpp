@@ -40,32 +40,32 @@ void CCamera::Update()
 		if (p_Input->g_cKeyState[(unsigned char)'w'] == INPUT_HOLD || 
 			p_Input->g_cKeyState[(unsigned char)'w'] == INPUT_FIRST_PRESS)
 		{
-			resultVec.z -= 0.2f;
+			resultVec.z -= 2.0f;
 		}
 		if ((p_Input->g_cKeyState[(unsigned char)'s'] == INPUT_HOLD || 
 			p_Input->g_cKeyState[(unsigned char)'s'] == INPUT_FIRST_PRESS))
 		{
-			resultVec.z += 0.2f;
+			resultVec.z += 2.0f;
 		}
 		if ((p_Input->g_cKeyState[(unsigned char)'a'] == INPUT_HOLD ||
 			p_Input->g_cKeyState[(unsigned char)'a'] == INPUT_FIRST_PRESS))
 		{
-			resultVec.x -= 0.2f;
+			resultVec.x -= 2.0f;
 		}
 		if ((p_Input->g_cKeyState[(unsigned char)'d'] == INPUT_HOLD || 
 			p_Input->g_cKeyState[(unsigned char)'d'] == INPUT_FIRST_PRESS))
 		{
-			resultVec.x += 0.2f;
+			resultVec.x += 2.0f;
 		}
 		if ((p_Input->g_cKeyState[(unsigned char)'r'] == INPUT_HOLD ||
 			p_Input->g_cKeyState[(unsigned char)'r'] == INPUT_FIRST_PRESS))
 		{
-			resultVec.y += 0.2f;
+			resultVec.y += 2.0f;
 		}
 		if ((p_Input->g_cKeyState[(unsigned char)'f'] == INPUT_HOLD ||
 			p_Input->g_cKeyState[(unsigned char)'f'] == INPUT_FIRST_PRESS))
 		{
-			resultVec.y -= 0.2f;
+			resultVec.y -= 2.0f;
 		}
 
 		if (resultVec != glm::vec3())
@@ -92,7 +92,8 @@ void CCamera::CalcViewMatrix()
 {
 	m_viewMatrix = glm::lookAt(
 		m_cameraPosition,
-		m_cameraPosition + m_cameraFacing,
+		glm::vec3(0.0, 0.0, 0.0),
+		//m_cameraPosition + m_cameraFacing,
 		m_cameraNormal);
 }
 

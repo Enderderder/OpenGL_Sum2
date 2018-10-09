@@ -88,9 +88,7 @@ void CScene::RenderScene()
 				= gameObject->GetComponent<CTerrain>();
 			if (terrainRender)
 			{
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				terrainRender->RenderTerrain(m_mainCamera);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 				continue;
 			}
 		}

@@ -55,9 +55,9 @@ void CTerrain::SmoothHeightMap()
 {
 	std::vector<float> dest(m_heightMap.size());
 
-	for (UINT i = 0; i < m_hmInfo.numRows; ++i)
+	for (int i = 0; i < m_hmInfo.numRows; ++i)
 	{
-		for (UINT j = 0; j < m_hmInfo.numCols; ++j)
+		for (int j = 0; j < m_hmInfo.numCols; ++j)
 		{
 			dest[i * m_hmInfo.numCols + j] = Average(i, j);
 		}
@@ -72,41 +72,44 @@ void CTerrain::CreateTerrain(HeightMapInfo& _info)
 	// Pass in the information of the heightmap
 	m_hmInfo = _info;
 
-	m_numVertices = m_hmInfo.numRows * m_hmInfo.numCols;
-	m_numFaces = (m_hmInfo.numRows - 1) * (m_hmInfo.numCols - 1) * 2;
+	m_numVertices = 256 * 256;
+	m_numFaces = (256 - 1) * (256 - 1) * 2;
 
 	LoadHeightMap();
-	//SmoothHeightMap();
+	// Smooth for 100 times to make it smooth af
+	for (int i = 0; i < 10; ++i)
+	{
+		SmoothHeightMap();
+	}
 
 	/************************************************************************/
 
 	// Initialize a vector of position vector with the size
-	std::vector<GLfloat> vertices(m_numVertices * 3);
-	int s = 0;
-	for (UINT row = 0; row < m_hmInfo.numRows; ++row)
+	std::vector<float> vertex;
+	float z;
+	float x;
+	float y;
+	for (int row = 0; row < 256; ++row)
 	{
-		float z = row * m_hmInfo.cellSpacing;
-
-		for (UINT col = 0; col < m_hmInfo.numCols; ++col)
+		for (int col = 0; col < 256; ++col)
 		{
-			float x = col + m_hmInfo.cellSpacing;
-
-			float y = 0.0f; // m_heightMap[(row * m_hmInfo.numCols) + col];
+			z = (float)row * m_hmInfo.cellSpacing;
+			x = (float)col * m_hmInfo.cellSpacing;
+			y = m_heightMap[((float)row * (float)m_hmInfo.numCols) + (float)col];
 
 			// load each data into the vertices
-			vertices[(row * m_hmInfo.numCols) + col] = x;
-			//vertices[(row * m_hmInfo.numCols) + col]
+			vertex.push_back(x);
+			vertex.push_back(y);
+			vertex.push_back(z);
 		}
 	}
 
-	// Generate the indice buffer
-	std::vector<GLuint> indices(m_numFaces * 3);
-
 	// Iterate over each quad and compute indices.
+	std::vector<GLuint> indices((m_hmInfo.numRows - 1) * (m_hmInfo.numCols - 1) * 6);
 	int k = 0;
-	for (UINT row = 0; row < m_hmInfo.numRows - 1; ++row)
+	for (int row = 0; row < m_hmInfo.numRows - 1; ++row)
 	{
-		for (UINT col = 0; col < m_hmInfo.numCols - 1; ++col)
+		for (int col = 0; col < m_hmInfo.numCols - 1; ++col)
 		{
 			indices[k] = row * m_hmInfo.numCols + col;
 			indices[k + 1] = row * m_hmInfo.numCols + col + 1;
@@ -131,13 +134,13 @@ void CTerrain::CreateTerrain(HeightMapInfo& _info)
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertex.size(), &vertex[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &EBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), &indices[0], GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (GLvoid*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
 	// Unbind the VAO after generating
@@ -174,15 +177,66 @@ void CTerrain::RenderTerrain(CCamera* _camera)
 	glUniformMatrix4fv(mvpLoc, 1, GL_FALSE, glm::value_ptr(mvp));
 
 	// Render the shape
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	glBindVertexArray(m_vao);
 	glDrawElements(GL_TRIANGLES, m_indiceCount, GL_UNSIGNED_INT, 0);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Unbind
 	glBindVertexArray(0);
 	glUseProgram(0);
 }
 
-bool CTerrain::InBounds(UINT i, UINT j)
+float CTerrain::GetHeight(float _x, float _z) const
+{
+	// Transform from terrain local space to "cell" space.
+	float c = (_x + 0.5f * GetDepth()) / m_hmInfo.cellSpacing;
+	float d = (_z - 0.5f * GetWidth()) / -m_hmInfo.cellSpacing;
+
+	// Get the row and column we are in.
+	int row = (int)floorf(d);
+	int col = (int)floorf(c);
+
+	// Grab the heights of the cell we are in.
+	// A*--*B
+	//  | /|
+	//  |/ |
+	// C*--*D
+	float A = m_heightMap[row * m_hmInfo.numCols + col];
+	float B = m_heightMap[row * m_hmInfo.numCols + col + 1];
+	float C = m_heightMap[(row + 1) * m_hmInfo.numCols + col];
+	float D = m_heightMap[(row + 1) * m_hmInfo.numCols + col + 1];
+
+	// Where we are relative to the cell.
+	float s = c - (float)col;
+	float t = d - (float)row;
+
+	// If upper triangle ABC.
+	if (s + t <= 1.0f)
+	{
+		float uy = B - A;
+		float vy = C - A;
+		return A + s * uy + t * vy;
+	}
+	else // lower triangle DCB.
+	{
+		float uy = C - D;
+		float vy = B - D;
+		return D + (1.0f - s)*uy + (1.0f - t)*vy;
+	}
+}
+
+float CTerrain::GetWidth() const
+{
+	return (m_hmInfo.numCols - 1) * m_hmInfo.cellSpacing;
+}
+
+float CTerrain::GetDepth() const
+{
+	return (m_hmInfo.numRows - 1) * m_hmInfo.cellSpacing;
+}
+
+bool CTerrain::InBounds(int i, int j)
 {
 	// True if ij are valid indices; false otherwise.
 	return
@@ -190,7 +244,7 @@ bool CTerrain::InBounds(UINT i, UINT j)
 		j >= 0 && j < m_hmInfo.numCols;
 }
 
-float CTerrain::Average(UINT i, UINT j)
+float CTerrain::Average(int i, int j)
 {
 	// Function computes the average height of the ij element.
 	// It averages itself with its eight neighbor pixels.  Note
@@ -208,9 +262,9 @@ float CTerrain::Average(UINT i, UINT j)
 	float avg = 0.0f;
 	float num = 0.0f;
 
-	for (UINT m = i - 1; m <= i + 1; ++m)
+	for (int m = i - 1; m <= i + 1; ++m)
 	{
-		for (UINT n = j - 1; n <= j + 1; ++n)
+		for (int n = j - 1; n <= j + 1; ++n)
 		{
 			if (InBounds(m, n))
 			{
